@@ -1,0 +1,124 @@
+# @seed-fe/storage
+
+持久化保存数据，基于 localforage 封装。支持在浏览器中使用 IndexedDB、WebSQL 或 localStorage 进行数据存储。
+
+## 特性
+
+- 提供一致的 API 接口
+- 支持异步存储操作
+- 自动选择最佳存储方式（IndexedDB > WebSQL > localStorage）
+- 支持复杂数据类型（对象、数组等）
+- TypeScript 支持
+- 支持多实例隔离
+
+## 安装
+
+```bash
+# npm
+npm install @seed-fe/storage
+
+# yarn
+yarn add @seed-fe/storage
+
+# pnpm (推荐)
+pnpm add @seed-fe/storage
+```
+
+## 使用
+
+### 基础用法
+
+```typescript
+import storage from '@seed-fe/storage';
+
+// 存储数据
+await storage.setItem('user', { id: 1, name: 'John' });
+
+// 获取数据
+const user = await storage.getItem('user');
+console.log(user); // { id: 1, name: 'John' }
+
+// 删除数据
+await storage.removeItem('user');
+
+// 获取所有键名
+const keys = await storage.keys();
+console.log(keys); // ['key1', 'key2', ...]
+
+// 清除所有数据
+await storage.clear();
+```
+
+### 创建独立实例
+
+```typescript
+import { createStorage } from '@seed-fe/storage';
+
+// 创建独立的存储实例
+const userStorage = createStorage('user');
+const settingsStorage = createStorage('settings');
+
+// 使用独立实例
+await userStorage.setItem('profile', { /* ... */ });
+await settingsStorage.setItem('theme', 'dark');
+```
+
+### TypeScript 支持
+
+```typescript
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+// 类型安全的存储操作
+await storage.setItem<User>('currentUser', {
+  id: 1,
+  name: 'John',
+  email: 'john@example.com'
+});
+
+const user = await storage.getItem<User>('currentUser');
+
+if (user) {
+  console.log(user.name); // TypeScript 类型提示
+}
+```
+
+## API
+
+### 导出
+
+| 导出 | 说明 |
+|------|------|
+| `storage` | 默认导出的全局存储实例 |
+| `createStorage(name: string)` | 创建一个新的存储实例，`name` 用于隔离不同实例的数据 |
+
+### 方法
+
+| 方法 | 说明 | 参数 | 返回值 |
+|------|------|------|--------|
+| `getItem<T>(key: string)` | 获取存储的数据 | `key`: 存储键名 | `Promise<T \| null>` |
+| `setItem<T>(key: string, value: T)` | 存储数据 | `key`: 存储键名<br>`value`: 要存储的值 | `Promise<T>` |
+| `removeItem(key: string)` | 删除存储的数据 | `key`: 要删除的键名 | `Promise<void>` |
+| `keys()` | 获取所有存储的键名 | - | `Promise<string[]>` |
+| `clear()` | 清除所有存储的数据 | - | `Promise<void>` |
+| `getInstance(name: string)` | 创建新的存储实例 | `name`: 实例名称 | `Storage` |
+
+### 类型参数
+
+| 参数 | 说明 |
+|------|------|
+| `T` | 存储值的类型，用于类型安全的存储和检索 |
+
+## 注意事项
+
+1. 所有操作都是异步的，需要使用 `async/await` 或 Promise 链式调用
+2. 存储的值会被自动序列化/反序列化，支持存储复杂的数据类型
+3. 在不支持 IndexedDB 和 WebSQL 的环境下会自动降级使用 localStorage
+4. localStorage 模式下存在存储大小限制（通常为 5-10 MB）
+
+## 许可证
+
+MIT
