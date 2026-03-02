@@ -119,6 +119,22 @@ if (user) {
 3. 在不支持 IndexedDB 和 WebSQL 的环境下会自动降级使用 localStorage
 4. localStorage 模式下存在存储大小限制（通常为 5-10 MB）
 
+## 选型建议：何时用本库，何时直接用 localStorage
+
+### 推荐使用 `@seed-fe/storage`
+
+- 需要统一的异步存储 API（避免主线程同步阻塞）
+- 需要自动适配浏览器存储能力（IndexedDB > WebSQL > localStorage）
+- 需要通过实例名隔离或共享数据（如微应用间共享 `global` 实例）
+- 需要更好的 TypeScript 体验与可测试性
+- 在微应用共享实例时，建议统一 key 前缀规范：`<app>:<module>:<key>`
+
+### 可直接使用 `localStorage`
+
+- 只做少量、简单、同步读取（例如启动阶段读取数据）
+- 明确只在浏览器环境使用，且不需要跨存储后端兼容
+- 对异步能力、复杂数据和大容量没有要求
+
 ## 许可证
 
 MIT
